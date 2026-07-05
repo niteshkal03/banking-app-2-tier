@@ -3,13 +3,10 @@ name: Main Pipeline for Orchestrate
 on:
   push:
     branches:
-      - main
-
   workflow_dispatch: 
 
 jobs:
   verify_connection:
-    needs: verify_connection
     uses: ./.github/workflows/test_connection.yml
     permissions:
       id-token: write
