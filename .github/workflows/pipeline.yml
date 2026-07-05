@@ -3,7 +3,8 @@ name: Main Pipeline for Orchestrate
 on:
   push:
     branches:
-  workflow_dispatch: 
+      - main
+  workflow_dispatch:
 
 jobs:
   verify_connection:
@@ -13,7 +14,7 @@ jobs:
       contents: read
 
   test_fleet_health_envs:
-    needs: test_fleet_health
+    needs: verify_connection
     uses: ./.github/workflows/test_fleet_health.yml
     permissions:
       id-token: write
@@ -27,14 +28,14 @@ jobs:
       contents: read
 
   build_push:
-    needs: build_push
+    needs: smoke_testing
     uses: ./.github/workflows/build_push.yml
     permissions:
       id-token: write
       contents: read
 
-  deploy:
-    needs: deploy
+  deploying:
+    needs: build_push
     uses: ./.github/workflows/deploy.yml
     permissions:
       id-token: write
