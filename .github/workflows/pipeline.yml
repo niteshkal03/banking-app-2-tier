@@ -9,7 +9,7 @@ on:
 
 jobs:
   verify_connection:
-    uses: ./.github/workflows/test_connection.yml
+    needs: ./.github/workflows/test_connection.yml
     permissions:
       id-token: write
       contents: read
@@ -29,9 +29,9 @@ jobs:
       contents: read
 
   build_push:
-  needs: build_push
-  uses: ./.github/workflows/build_push.yml
-  permissions:
+    needs: build_push
+    uses: ./.github/workflows/build_push.yml
+    permissions:
       id-token: write
       contents: read
 
