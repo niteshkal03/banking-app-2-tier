@@ -1,7 +1,7 @@
 name : Building and AWS Push 
 
 on:
-  workflow_dispatch
+  workflow_call:
 
 jobs:
   working-job:
