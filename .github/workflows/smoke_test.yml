@@ -4,9 +4,21 @@ on:
   workflow_call:
 
 jobs:
-  working-job:
+  smoke:
     runs-on: ubuntu-latest
 
     steps:
-      - name : Echo Message
-        run : echo "Smoke Test successfully ✅"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::561516790720:role/github-action-deploy-role
+          aws-region: us-east-1
+      - name: Upload smote_test.py on AWS
+        run: |
+          aws s3 cp smoke_test.py \
+          s3://561516790720-devops-scripts/smoke_test.py \
+          --region us-east-1
+      - name: Run Smoke Test on Fleet 
+        id: smoke
+        run: | 
+        CMD_ID=$(aws ssm send-command \
+        --targets "key=") 

@@ -1,7 +1,8 @@
-name : Test Fleet and Env Variables
+name: Test Fleet health and Env Variables
 
-on: 
-  workflow_call:  
+on:
+  workflow_call:
+
 
 permissions:
   id-token: write
@@ -10,25 +11,24 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::561516790720:role/github-action-deploy-role
+          role-to-assume: arn:aws:iam:561516790720:role/github-action-deploy-role
           aws-region: us-east-1
 
-      - name: Fleet Health check
+      - name: Fleet Health Checks
         id: health
         run: |
           CMD_ID=$(aws ssm send-command \
             --targets "Key=tag:App,Values=flask" \
             --document-name "AWS-RunShellScript" \
             --parameters '{"commands":[
-            "hostname -I",
-            "docker --version 2>/dev/null || echo DOCKER NOT INSTALLED",
-            "aws --version 2>/dev/null || echo DOCKER NOT INSTALLED",
-            "mysql --version 2>/dev/null || echo DOCKER NOT INSTALLED",
-            "aws ssm get-parameters-by-path --path /application/banking --with-decryption --region us-east-1 | grep -E Name"
+              "hostname -I",
+              "docker --version 2>/dev/null || echo DOCKER NOT INSTALLED",
+              "aws --version 2>/dev/null || echo AWS CLI NOT INSTALLED",
+              "mysql --version 2>/dev/null || echo MYSQL NOT INSTALLED",
+              "aws ssm get-parameters-by-path --path /application/banking --with-decryption --region us-east-1 | grep -E Name"
               ]}' \
             --query 'Command.CommandId' \
             --output text \
