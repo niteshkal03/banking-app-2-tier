@@ -1,9 +1,7 @@
-name : Test Workflow
+name : Test Fleet and Env Variables
 
 on: 
-  push:
-    branches:
-      - main
+  workflow_dispatch  
 
 permissions:
   id-token: write
