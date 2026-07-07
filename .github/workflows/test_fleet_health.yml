@@ -41,17 +41,17 @@ jobs:
         run: |  
           sleep 20
           aws ssm list-command-invocations \
-            --command-id "${{ steps.health.outputs.cmd_id }}" \
-            --details \
-            --region us-east-1 \
-            --output text 
+          --command-id "${{ steps.health.outputs.cmd_id }}" \
+          --details \
+          --region us-east-1 \
+          --output text 
           
           FAILED=$(aws ssm list-command-invocations \
-            --command-id "${{ steps.health.outputs.cmd_id }}" \
-            --query "length(CommandInvocations[?Status=='Failed'])" \
-            --output text \
-            --region us-east-1
-            )
+          --command-id "${{ steps.health.outputs.cmd_id }}" \
+          --query "length(CommandInvocations[?Status=='Failed'])" \
+          --output text \
+          --region us-east-1
+          )
 
           [ "$FAILED" -gt 0 ] && \
           echo "::error::Health Check Failed on $FAILED instances" && \
