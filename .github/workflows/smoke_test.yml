@@ -15,7 +15,7 @@ jobs:
       - name: Upload smoke_test.py on AWS
         run: |
           aws s3 cp scripts/smoke_test.py \
-          s3://720800607391-devops-scripts/smoke_test.py \
+          s3://561516790720-devops-scripts/smoke_test.py \
           --region us-east-1
 
       - name: Run Smoke Test on Fleet
@@ -25,7 +25,7 @@ jobs:
           --targets "Key=tag:App,Values=flask" \
           --document-name "AWS-RunShellScript" \
           --parameters '{"commands":[
-            "aws s3 cp s3://720800607391-devops-scripts/smoke_test.py /tmpr/smoke_test.py",
+            "aws s3 cp s3://561516790720-devops-scripts/smoke_test.py /tmpr/smoke_test.py",
             "python3 /tmpr/smoke_test.py",
             "rm /tmpr/smoke_test.py"
             ]}'\
