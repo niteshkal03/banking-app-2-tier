@@ -1,4 +1,4 @@
-name: Smoke Testing For Infra and Networking
+name: Intializing Database
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  smoke:
+  init-db:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,22 +21,23 @@ jobs:
           role-to-assume: arn:aws:iam::561516790720:role/github-action-deploy-role
           aws-region: us-east-1
 
-      - name: Upload smoke_test.py to S3
+      - name: Upload file on S3
         run: |
           aws s3 mb s3://561516790720-devops-scripts --region us-east-1 2>/dev/null || true
-          aws s3 cp smoke_test.py s3://561516790720-devops-scripts/smoke_test.py --region us-east-1
+          aws s3 cp init.sql s3://561516790720-devops-scripts/init.sql --region us-east-1
+          aws s3 cp init.py s3://561516790720-devops-scripts/init.py --region us-east-1
+          echo "✅ Files Uploaded to bucket.."
 
-      - name: Run Smoke Test on Fleet
-        id: smoke
+      - name: Initializing Database on RDS using Ec2
+        id: init
         run: |
           CMD_ID=$(aws ssm send-command \
             --targets "Key=tag:App,Values=flask" \
             --document-name "AWS-RunShellScript" \
             --parameters '{"commands":[
-              "aws s3 cp s3://561516790720-devops-scripts/smoke_test.py /tmp/smoke_test.py",
-              "pip3 install pymysql -q 2>/dev/null",
-              "python3 /tmp/smoke_test.py || exit 1",
-              "rm /tmp/smoke_test.py"
+              "aws s3 cp s3://561516790720-devops-scripts/init.py /tmp/init.py",
+              "python3 /tmp/init.py || exit 1",
+              "rm /tmp/init.py"
             ]}' \
             --query 'Command.CommandId' \
             --output text \
@@ -48,19 +49,19 @@ jobs:
           sleep 30
 
           aws ssm list-command-invocations \
-            --command-id "${{ steps.smoke.outputs.cmd_id }}" \
+            --command-id "${{ steps.init.outputs.cmd_id }}" \
             --details \
             --region us-east-1 \
             --output text
 
           FAILED=$(aws ssm list-command-invocations \
-            --command-id "${{ steps.smoke.outputs.cmd_id }}" \
+            --command-id "${{ steps.init.outputs.cmd_id }}" \
             --query "length(CommandInvocations[?Status=='Failed'])" \
             --output text \
             --region us-east-1)
 
           [ "$FAILED" -gt 0 ] && \
-            echo "::error::Smoke test failed on $FAILED instance(s)!" && \
+            echo "::error::Database Creation Failed $FAILED instance(s)!" && \
             exit 1
 
-          echo "✅ Smoke Test Passed!"
+          echo "✅ Database Created Successfully"
